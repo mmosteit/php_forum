@@ -1,0 +1,62 @@
+body{
+    background-color:#333333;
+}
+
+textarea, .post_text, .username_div, .reply_new_branch, #post_div{
+    float: left;
+    clear: left;
+}
+
+textarea, .reply_new_branch, .reply_current_branch, #create_thread, .post, .thread_title, .text_input, #wrapper, .post_button{ 
+    padding: .5em; 
+}
+
+textarea, .username_div, .reply_new_branch, .reply_current_branch, #create_thread, .post_button, .text_input {
+    border-style: none;
+}
+
+textarea, .reply_current_branch, .reply_new_branch, #create_thread, .post, .thread_title, .text_input, .post_button, #wrapper{ 
+    border-radius:.5em;
+}
+
+li, #wrapper, #post_div{
+    overflow: hidden; 
+}
+
+li {
+    list-style-type: none;
+}
+
+.username_div, a.delete, .delete_post{
+    margin: .5em;
+}
+
+a.delete{
+    color: blue;
+}
+
+.reply_new_branch{
+    background-color:#99BBFF;
+    box-shadow: none;
+}
+
+.reply_current_branch, #create_thread{
+    background-color:#7777FF;
+    box-shadow: none;
+    margin-top:.5em;
+}
+
+.post, .thread_title{
+    background-color: #7777FF;
+    margin-bottom: .5em;
+    margin-top: .5em;
+}
+
+.text_input, ul, li{
+    margin: .5em;
+ }
+
+#wrapper{
+    background-color: #9999FF;
+    margin-top: auto;
+}
