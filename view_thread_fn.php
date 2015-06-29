@@ -6,59 +6,85 @@ require_once('db.php');
 // When the user goes to view_thread.php
 class post_tree{
 
-    private $post_id;          // The id of the post.
-    private $post_text;        // The message text
-    private $username;         // The author of the message
-    private $date_posted;      // The time and date posted
-    private $children = NULL;  // All children of this post
-    private $parent_id;        // The parent_id of this post as stored in the sql table
-    private $deleted;          // Has this post been deleted by the moderator?
-    private $thread_id;        // What thread does this post belong to?
-    private $parent;      // The parent one level up in this tree.
-
-    public function post_tree($db, $new_post_id, $parent){
+    protected $post_id;          // The id of the post.
+    protected $post_text;        // The message text
+    protected $username;         // The author of the message
+    protected $date_posted;      // The time and date posted
+    protected $children = NULL;  // All children of this post
+    protected $parent_id;        // The parent_id of this post as stored in the sql table
+    protected $deleted;          // Has this post been deleted by the moderator?
+    protected $thread_id;        // What thread does this post belong to?
+    protected $parent_node;      // The parent one level up in this tree.
+    protected $int_post_id;
+    
+    public function post_tree($db, $new_post_id, $parent_node)
+    {
 
 
         $this->post_id = $new_post_id;
         $post_id = $new_post_id;
+        $this->parent_node = $parent_node;
 
         // Get the post content
-        $querystring = 'select * from posts where post_id = '.$this->post_id; 
-        $rs = $db->query($querystring);
-        $this->parent = $parent;
-   
-
-        if($rs->num_rows != 1){
-            // A user clicks on a thread right before a moderator deletes it
-            if($s->num_rows == 0){
-                throw new Exception("<p>This thread has been deleted</p>");	
-            }
-            // This should never happen. Database has been corrupted.
-            else{
-                throw new Exception("<p>There is more than one post with the post_id ".$this->post_id.". Please contact webmaster.</p>");
-            }
+        $querystring = 'select post_text, username, date_posted, parent_id, deleted, thread_id from posts where post_id = ?'; //$this->post_id; 
+        $statement = $db->prepare($querystring);
+        
+        $this->int_post_id = intval($post_id);
+        $statement->bind_param("i",$this->int_post_id);
+        $statement->execute(); 
+ 
+        $statement->bind_result(
+            $this->post_text,
+            $this->username,
+            $this->date_posted,
+            $this->parent_id,
+            $this->deleted,
+            $this->thread_id   
+            );
+ 
+        if(!($statement->fetch())){
+            throw new Exception("<p>This thread has been deleted</p>");	
         }
-        else{
-            $result            = $rs->fetch_assoc();
-            $this->post_text   = $result['post_text'];
-            $this->username    = $result['username'];
-            $this->date_posted = $result['date_posted'];
-            $this->parent_id   = $result['parent_id'];
-            $this->deleted     = $result['deleted'];
-            $this->thread_id   = $result['thread_id'];
-        }
+    
+        $statement->close();
 
         // Get the content any children.
-        $childquerystring = 'select * from posts where parent_id = '.$post_id." order by date_posted asc;";
-        $rs = $db->query($childquerystring);
-
-        if($rs->num_rows > 0){
-            $index = 0;
+        $childquerystring = 'select post_id from posts where parent_id = ? order by date_posted asc';
+        $statement = $db->prepare($childquerystring);
+ 
+        $statement->bind_param("i",$this->int_post_id);
+        if( ! $statement->execute())
+        {
+            echo "Houston, we have a problem";
+        }
+        
+        
+        $statement->bind_result($child_id);
+        $result = $statement->fetch();
+    
+       
+        
+        // Add any children 
+        if($result == true){
+    
+            $children_id = array();
+             array_push($children_id, $child_id);  
+            
+             while($statement->fetch()){ 
+                array_push($children_id, $child_id);  
+              }
+            $statement->close();
+        
             $this->children = array(); 
-            while($row = $rs->fetch_assoc() ){ 
-                $this->children[$index] = new post_tree($db, $row['post_id'], $this); 
-                $index++;
+            foreach($children_id as $id)
+            {
+                array_push($this->children, new post_tree($db, $id, $this)); 
+              
             }
+        }
+        else
+        {
+            $statement->close();
         }
     }
 
@@ -107,9 +133,9 @@ class post_tree{
         // Add a reply button to add new children 
 
         if($this->post_text != NULL){
-            $num_children = $this->parent->num_children(); 
+            $num_children = $this->parent_node->num_children(); 
 
-            if ($this->parent->children[$num_children-1] == $this){ // We are not the root node
+            if ($this->parent_node->children[$num_children-1] == $this){ // We are not the root node
                 echo "<li>";
                 echo "<button type='button' class='reply_current_branch'>Continue conversation</button>";
                 echo "</li>";

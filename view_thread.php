@@ -32,24 +32,27 @@ else{
 
     echo "<a href='index.php'>Back to index</a>\r\n";
 
-    $sqlstring = "select first_post_id, thread_title from threads where thread_id = ".$thread_id.";";
-    $rs = $db->query($sqlstring);
+    $sqlstring = "select first_post_id, thread_title from threads where thread_id = ?";
+    $statement = $db->prepare($sqlstring);
+
+    $int_thread_id = intval($thread_id);
+    $statement->bind_param("i",$int_thread_id);
+    $statement->execute(); 
+
+    $statement->bind_result($first_post_id,$thread_title);
 
     // The thread has been deleted between the time the user views the index
     // and clicks on the first link
-    if($rs->num_rows == 0){
+
+
+    if(!($statement->fetch())){
         echo "<p>This thread has been deleted.";
         echo "</div>";
     }
     else{
-
-        $row = $rs->fetch_assoc();
-
-        $first_post_id = $row['first_post_id']; 
-        $thread_title  = $row['thread_title'];
-
+        $statement->close();
         try{
-            $tree = new post_tree($db, $first_post_id);    
+            $tree = new post_tree($db, $first_post_id, null); // We are passing in null because the top level node has no parent    
 
             echo "<h2 class='thread_title'>".htmlspecialchars($thread_title)."</h2>";
 
