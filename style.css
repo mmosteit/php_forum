@@ -1,5 +1,5 @@
 body{
-    background-color:#333333;
+    background-color:#222222;
 }
 
 textarea, .post_text, .username_div, .reply_new_branch, #post_div{
@@ -16,7 +16,7 @@ textarea, .username_div, .reply_new_branch, .reply_current_branch, #create_threa
 }
 
 textarea, .reply_current_branch, .reply_new_branch, #create_thread, .post, .thread_title, .text_input, .post_button, #wrapper{ 
-    border-radius:.5em;
+    border-radius:.1em;
 }
 
 li, #wrapper, #post_div{
@@ -36,18 +36,18 @@ a.delete{
 }
 
 .reply_new_branch{
-    background-color:#99BBFF;
+    background-color:#99999F;
     box-shadow: none;
 }
 
 .reply_current_branch, #create_thread{
-    background-color:#7777FF;
+    background-color:#99999F;
     box-shadow: none;
     margin-top:.5em;
 }
 
 .post, .thread_title{
-    background-color: #7777FF;
+    background-color: #77777C;
     margin-bottom: .5em;
     margin-top: .5em;
 }
@@ -57,6 +57,6 @@ a.delete{
  }
 
 #wrapper{
-    background-color: #9999FF;
+    background-color: #000011;
     margin-top: auto;
 }
